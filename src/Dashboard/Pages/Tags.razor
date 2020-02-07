@@ -1,0 +1,39 @@
+﻿@page "/Tags"
+@using balenaLocatingDashboard.Model
+
+<h1>Tags</h1>
+
+Here are the tags and their given names:
+
+@code {
+    private List<Tag> _namedTags = TagViewModel.GetTagNames();
+}
+
+@if (_namedTags == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Tag ID</th>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody>
+    @foreach (var item in _namedTags)
+    {
+            {
+                    <tr>
+                        <td>@item.Id</td>
+                        <td>@item.Name</td>
+                    </tr>
+                }
+    }
+        </tbody>
+    </table>
+}
+
+

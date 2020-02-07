@@ -1,0 +1,39 @@
+﻿@page "/Devices"
+@using balenaLocatingDashboard.Model
+
+<h1>Devices</h1>
+
+Here are the devices mapped to a location:
+
+@code {
+    private List<Device> _mappedDevices = DeviceViewModel.GetMappedDevices();
+}
+
+@if (_mappedDevices == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Device Name</th>
+                <th>Location</th>
+            </tr>
+        </thead>
+        <tbody>
+    @foreach (var item in _mappedDevices)
+    {
+            {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>@item.Location</td>
+                    </tr>
+                }
+    }
+        </tbody>
+    </table>
+}
+
+

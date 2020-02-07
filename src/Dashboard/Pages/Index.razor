@@ -1,0 +1,112 @@
+﻿@page "/"
+@using balenaLocatingDashboard.Model
+@using System.Threading;
+
+<h1>Where's my stuff?</h1>
+
+Here's a list of the iBeacons I've found:<hr>
+
+<button class="btn btn-primary" @onclick="ToggleShowUnNamed">
+    @_buttonLabel Un-Named Tags?
+</button>
+
+@code {
+    private bool _showUnNamed;
+    private string _buttonLabel = "Show";
+    private BeaconsViewModel _viewModel = new BeaconsViewModel();
+    private IList<Beacon> _latestBeacons;
+    protected override async Task OnInitializedAsync()
+    {
+        await GetLatestBeacons();
+        await StartCountdown();
+    }
+
+    private async Task GetLatestBeacons()
+    {
+        _latestBeacons = await _viewModel.GetLatest();
+    }
+
+     private void ToggleShowUnNamed()
+    {
+        _showUnNamed = !_showUnNamed;
+       SetButtonLabel();
+    }
+
+    private void SetButtonLabel()
+    {
+         if(_showUnNamed)
+        {
+            _buttonLabel = "Hide";
+        }
+        else
+        {
+            _buttonLabel = "Show";
+        }
+    }
+
+    private string SetRowColour(DateTime lastSeen)
+    {
+        if(lastSeen.AddMinutes(10) <= DateTime.Now)
+        {
+            return "lightpink";
+        }
+
+        return "azure";
+    }
+
+     private int _count { get; set; } = 30;
+
+    private async Task StartCountdown()
+    {
+        var timer = new Timer(new TimerCallback(async (_) =>
+        {
+            if (_count <= 0) 
+            {
+                await GetLatestBeacons();
+                _count = 30;
+                return;
+            }
+            _count--;
+
+            await base.InvokeAsync(StateHasChanged);
+        }), null, 1000, 1000);
+    }
+        
+}
+
+@if (_latestBeacons == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Tag Name</th>
+                <th>Last Seen</th>
+                <th>Device Name</th>
+                <th>Strength</th>
+                <th>Location</th>
+            </tr>
+        </thead>
+        <tbody>
+    @foreach (var item in _latestBeacons)
+    {
+        if(null == item.BeaconName && !_showUnNamed){continue;}
+        <tr bgcolor=@SetRowColour(item.LastSeen)>
+            <td>@(item.BeaconName ?? item.BeaconId)</td>
+            <td>@item.LastSeen</td>
+            <td>@item.DeviceName</td>
+            <td>@item.Strength</td>
+            <td>@item.Location</td>
+        </tr>
+    }
+        </tbody>
+    </table>
+    <hr>
+
+    <p>Refreshing in @_count seconds</p>
+}
+
+

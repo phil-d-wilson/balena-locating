@@ -1,0 +1,22 @@
+version: '2.1'
+volumes:
+    resin-data: {}
+services:
+    iBeaconService:
+        build: iBeaconService
+        ports:
+            - 80:8123
+        privileged: true
+        tty: true
+        restart: always
+        network_mode: host
+        volumes:
+            - 'resin-data:/data'
+    Dashboard:
+        build: Dashboard
+        ports: 
+            - 80:80
+        privileged: true
+        restart: "no"
+        network_mode: host
+    
