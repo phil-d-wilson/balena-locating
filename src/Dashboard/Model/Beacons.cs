@@ -2,10 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using InfluxDB.Client;
-using InfluxDB.Client.Api.Domain;
 using InfluxDB.Client.Core;
-using InfluxDB.Client.Writes;
 using NodaTime;
+using System.Diagnostics;
 
 namespace balenaLocatingDashboard.Model
 {
@@ -51,7 +50,7 @@ namespace balenaLocatingDashboard.Model
             }
             catch(Exception ex)
             {
-                Console.WriteLine("Influx exception: " + ex);
+                Debug.WriteLine("Influx exception: " + ex);
                 return null;
             }
 
@@ -61,17 +60,45 @@ namespace balenaLocatingDashboard.Model
                  {
                     if((double)fluxRecord.GetValue() <= (double)-1)
                     {
-                        var deviceId = fluxRecord.GetValueByKey("deviceId").ToString();
-                        var tagId = fluxRecord.GetValueByKey("tagId").ToString();
+                        #region deviceId
+                        var deviceIdRecord = fluxRecord.GetValueByKey("deviceId");
+                        if(null == deviceIdRecord)
+                        {
+                            Debug.WriteLine("No deviceId found for a row in the InfluxDB, so skipping.");
+                            Debug.WriteLine("Row timestamp = " + fluxRecord.GetTime());
+                            return; //returns from the .foreach not the method
+                        }
+                        var deviceId = deviceIdRecord.ToString();
+                        #endregion
+
+                        #region tagId
+                        var tagRecord = fluxRecord.GetValueByKey("tagId");
+                        if(null == deviceIdRecord)
+                        {
+                            Debug.WriteLine("No tagId found for a row in the InfluxDB, so skipping.");
+                            Debug.WriteLine("Row timestamp = " + fluxRecord.GetTime());
+                            return; //returns from the .foreach not the method
+                        }
+                        var tagId = tagRecord.ToString();
+                        #endregion
+
+                        #region deviceName
+                        var deviceNameRecord = fluxRecord.GetValueByKey("deviceName");
+                        var deviceName = deviceId;
+                        if(null != deviceNameRecord)
+                        {
+                            deviceName = deviceNameRecord.ToString();
+                        }
+                        #endregion
 
                         output.Add(new Beacon
                         {
                             Strength = (double)fluxRecord.GetValue(),
-                            LastSeen = ((Instant)fluxRecord.GetTime()).ToDateTimeUtc(),
+                            LastSeen = ((Instant)fluxRecord.GetTime()).ToDateTimeUtc(), //Is this the record time, rather than the beacon?!?
                             DeviceName = deviceId,
                             BeaconId = tagId,
                             BeaconName = TagViewModel.GetTagName(tagId),
-                            Location = DeviceViewModel.GetDeviceMapping(deviceId)
+                            Location = deviceName
                         });
                     }
                  });

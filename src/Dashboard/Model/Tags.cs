@@ -1,5 +1,5 @@
 using System;
-using System.IO;
+using System.Diagnostics;
 using System.Linq;
 using System.Collections.Generic;
 
@@ -26,7 +26,7 @@ namespace balenaLocatingDashboard.Model
             }
             else
             {
-                Console.WriteLine("Environment Variable was null");
+                Debug.WriteLine("Environment Variable was null");
             }
 
             return output;
@@ -50,5 +50,7 @@ namespace balenaLocatingDashboard.Model
     {
           public string Id {get; set;}
         public string Name {get; set;}
+        public DateTime LastSeen {get;set;}
+        public string Location {get;set;}
     }
 }

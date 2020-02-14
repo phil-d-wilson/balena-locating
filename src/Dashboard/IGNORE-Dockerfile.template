@@ -1,0 +1,3 @@
+FROM scratch
+COPY hello /
+CMD ["touch /hello"]

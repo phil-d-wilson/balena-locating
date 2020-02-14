@@ -1,7 +1,5 @@
 {
     "dependencies": {
-        "mqtt-packet": "^6.0.0",
-        "readable-stream": "^2.3.6",
-        "websocket-stream": "^5.1.2"
+        "mqtt-packet": "^6.0.0"
       }  
 }
