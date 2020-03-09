@@ -1,15 +1,16 @@
 FROM balenalib/raspberrypi3-debian-dotnet:3.1-sdk-stretch-build as build
+WORKDIR /app
 
-WORKDIR /src
-COPY ./balenaLocatingDashboard.csproj .
+#Restore nuget packages
+COPY ./*.csproj .
+RUN dotnet restore
 
-RUN dotnet restore "balenaLocatingDashboard.csproj"
-COPY . .
-RUN dotnet build "balenaLocatingDashboard.csproj" -o /app/build
+#Build and publish project
+COPY . ./
+RUN dotnet publish -c Debug -o out
 
-FROM build AS publish
-RUN dotnet publish "balenaLocatingDashboard.csproj" -o /app/publish
-
-COPY --from=build /src/bin/Debug/netcoreapp3.1/ .
-RUN ls -l
+#Use runtime image to keep size dowm
+FROM balenalib/raspberrypi3-debian-dotnet:3.1-aspnet-run
+WORKDIR /app
+COPY --from=build /app/out .
 ENTRYPOINT  ["dotnet", "balenaLocatingDashboard.dll"]

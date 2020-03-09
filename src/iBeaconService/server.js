@@ -3,28 +3,41 @@ const scanner = new BeaconScanner();
 const date = require('date-and-time');
 
 //Ready the Balena SDK
-var balena = require('balena-sdk')({
-	apiUrl: "https://api.balena-cloud.com/",
-	dataDirectory: "/app/balena"
-})
-var key = process.env.BALENACLOUD_KEY;
+let balena = require('balena-sdk')({
+  apiUrl: "https://api.balena-cloud.com/",
+  dataDirectory: "/app/balena"
+});
+
+let key = process.env.BALENACLOUD_KEY;
 balena.auth.loginWithToken(key);
 
-//TODO - fail gracefully if something isn't configured or returns null
-var deviceId = process.env.BALENA_DEVICE_UUID;
-var deviceName = GetDeviceName(deviceId);
-var rssiThreshold = process.env.RSSI_THRESHOLD;
-var separationPeriod = process.env.SEP_PERIOD;
-var influxHost = process.env.INFLUX_HOST;
-var influxKey = process.env.INFLUX_KEY;
-var influxBucket = process.env.INFLUX_BUCKET;
-var influxOrg = process.env.INFLUX_ORG;
+let debug = false;
+
+let deviceId = process.env.BALENA_DEVICE_UUID;
+let deviceName = GetDeviceName(deviceId);
+let rssiThreshold = process.env.RSSI_THRESHOLD;
+let separationPeriod = process.env.SEP_PERIOD;
+let influxHost = process.env.INFLUX_HOST;
+let influxKey = process.env.INFLUX_KEY;
+let influxBucket = process.env.INFLUX_BUCKET;
+let influxOrg = process.env.INFLUX_ORG;
+if (![deviceId, rssiThreshold, separationPeriod, influxHost, influxBucket, influxKey, influxOrg].every(Boolean)) {
+  throw new exc("Please check that all environment variables are configured. Exiting.");
+}
+
+
+let debugSetting = process.env.DEBUG || "false";
+if (debugSetting.toLowerCase() == "true") {
+  debug = true;
+}
+
+influxHost = influxHost.replace("https://", "");
 
 //Set the separation period
-var separationPeriod = separationPeriod * 1000
+separationPeriod = separationPeriod * 1000;
 
 //create a dictionary to track last sent datetime per tag
-var lastSentDictionary = {}
+let lastSentDictionary = {};
 
 //Ready the InfluxDB client
 const Influxdb = require('influxdb-v2');
@@ -35,93 +48,139 @@ const influxdb = new Influxdb({
 
 // Set an Event handler for becons
 scanner.onadvertisement = (ad) => {
-  var tagId = ad.iBeacon.major + "-" + ad.iBeacon.minor;
 
-    if(null != rssiThreshold && ad.rssi < rssiThreshold)
-    {
-      console.log("iBeacon for tag: " + tagId + " ignored because the RSSI was below the set threshold: " + rssiThreshold);
+  let tagId = ad.address
+
+  if (ad.rssi > -10) {
+    if (debug) { console.log("Invalid beacon received: " + ad.address + " and ignored"); }
+    return;
+  }
+
+  if (ad.beaconType == "iBeacon") {
+    if (ad.iBeacon.major == 0 || ad.iBeacon.minor == 0) {
+      if (debug) { console.log("Beacon with invalid UUID/major/minor found. Ignoring") }
       return;
     }
 
-    if(ad.rssi > -10)
-    {
-      console.log("Invalid beacon received and ignored");
-      return;
+    //TODO: Remove this when the ghost beacons issue is resolved
+    if (ad.iBeacon.minor != 139 && ad.iBeacon.minor != 1218 && ad.iBeacon.minor != 6) {
+      console.log("Ad: " + objToString(ad))
+      console.log("iBeacon: " + objToString(ad.iBeacon))
     }
 
-    if (tagId in lastSentDictionary)
-    {
-      //if this device has sent an iBeacon entry for this tag less than
-      // 30 seconds ago, don't send another yet.
-      var gap = (new Date) - lastSentDictionary[tagId];
-      if (gap < separationPeriod)
+    tagId = ad.iBeacon.uuid + "-" + ad.iBeacon.major + "-" + ad.iBeacon.minor;
+  }
+  else if (ad.beaconType == "eddystoneUid")
+  {
+    console.log("Ad: " + objToString(ad))
+    console.log("EddystoneUid: " + objToString(ad.eddystoneUid))
+    tagId = ad.eddystoneUid.namespace + "-" + ad.eddystoneUid.instance;
+  }
+  else if (ad.beaconType == "eddystoneTlm")
+  {
+    console.log("Ad: " + objToString(ad))
+    console.log("eddystoneTlm: " + objToString(ad.eddystoneTlm))
+    console.log("Eddystone TLM beacons are not supported. Ignoring")
+    return;
+  }
+  else if (ad.beaconType == "eddystoneUrl")
+  {
+    console.log("Ad: " + objToString(ad))
+    console.log("eddystoneUrl: " + objToString(ad.eddystoneUrl))
+    console.log("Eddystone URL beacons are not supported. Ignoring")
+    return;
+  }
+  else
+  {
+    console.log("Other type of advertisement packet recieved. Currently not supported. Ignoring:")
+    console.log(objToString(ad))
+    return;
+  }
+
+  
+
+  if (null != rssiThreshold && ad.rssi < rssiThreshold) {
+    if (debug) { console.log("Beacon for tag: " + tagId + " ignored because the RSSI was below the set threshold: " + rssiThreshold) }
+    return;
+  }
+
+  if (tagId in lastSentDictionary) {
+    //if this device has sent an iBeacon entry for this tag less than
+    // 30 seconds ago, don't send another yet.
+    let gap = (new Date) - lastSentDictionary[tagId];
+    if (gap < separationPeriod) {
+      if (debug) { console.log("Beacon for tag: " + tagId + " ignored because it was reported only " + gap / 1000 + "seconds ago.") }
+      return;
+    }
+  }
+
+  //create the Influx data row from the beacon
+  data = 'beacon,device=' + deviceId + ',deviceName=' + deviceName + ',tag=' + tagId + ' rssi=' + ad.rssi
+  console.log("Beacon: " + data);
+
+  (async () => {
+    await influxdb.write(
       {
-        console.log("iBeacon for tag: " + tagId + " ignored because it was reported only " + gap/1000 + "seconds ago.");
-        return;
-      }
-    }
-
-    //create the Influx data row from the beacon
-    data = 'ibeacon,device=' + deviceId + ',deviceName=' + deviceName + ',tag=' + tagId + ' rssi=' + ad.rssi + ' ' + date
-    console.log("Beacon: " + data);
-
-    (async () => {
-      await influxdb.write(
-        {
-          org: influxOrg,
-          bucket: influxBucket
+        org: influxOrg,
+        bucket: influxBucket
+      },
+      [{
+        measurement: 'Beacon',
+        tags: {
+          deviceId: deviceId,
+          deviceName: deviceName,
+          tagId: tagId
         },
-        [{
-          measurement: 'iBeacon',
-          tags: {
-            deviceId: deviceId,
-            deviceName: deviceName,
-            tagId: tagId
-          },
-          fields: {
-            rssi: ad.rssi
-          }
-        }]
-      );
-    })().catch(error => {
-      console.error('\n🐞 An error occurred!', error);
-      process.exit(1);
-    });
+        fields: {
+          rssi: ad.rssi
+        }
+      }]
+    );
+  })().catch(error => {
+    console.error('\n🐞 An error occurred!', error);
+    process.exit(1);
+  });
 
-    lastSentDictionary[tagId] = new Date;
+  lastSentDictionary[tagId] = new Date;
 };
 
-function GetDeviceName(deviceId)
-{
-  balena.models.device.tags.getAllByDevice(deviceId).then(function(tags) {
-    if(null != tags)
-    {
-      tags.forEach(function(tag) {
-        if(tag.tag_key == "Name")
-        {
-            deviceName = tag.value;
-            console.log("Using the 'Name' tag for the device name.")
-            console.log("Device name is " + tag.value);
-            return;
+function objToString(obj) {
+  let str = '';
+  for (let p in obj) {
+    if (obj.hasOwnProperty(p)) {
+      str += p + '::' + obj[p] + '\n';
+    }
+  }
+  return str;
+}
+
+function GetDeviceName(deviceId) {
+  balena.models.device.tags.getAllByDevice(deviceId).then(function (tags) {
+    if (null != tags) {
+      tags.forEach(function (tag) {
+        if (tag.tag_key == "Name") {
+          deviceName = tag.value;
+          console.log("Using the 'Name' tag for the device name.")
+          console.log("Device name is " + tag.value);
+          return;
         }
       });
     }
-    else
-    {
-      balena.models.device.getName(deviceId).then(function(name) {
-        
-        console.log("No 'Name' tag set for this device so using "+ name + " instead");
+    else {
+      balena.models.device.getName(deviceId).then(function (name) {
+
+        console.log("No 'Name' tag set for this device so using " + name + " instead");
         deviceName = name;
         return;
-      }); 
-        
+      });
+
     }
   })
 }
 
 // Start scanning for iBeacons
 scanner.startScan().then(() => {
-  console.log('Started to scan.')  ;
+  console.log('Started to scan.');
 }).catch((error) => {
   console.error(error);
 });

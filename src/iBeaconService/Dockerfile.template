@@ -2,24 +2,21 @@ FROM balenalib/raspberrypi3-node:12-latest-build
 
 WORKDIR /app
 
-RUN npm -v
+#install some dependencies for noble and balena-sdk
+RUN install_packages make g++ bluetooth bluez libbluetooth-dev libudev-dev git
 
-RUN apt-get update && \
-    apt-get install make g++ bluetooth bluez libbluetooth-dev libudev-dev git && \
-    rm -rf /var/lib/apt/lists/* 
-
+#Set permissions to allow BLE scanning
 RUN sudo setcap cap_net_raw+eip $(eval readlink -f `which node`)
 
 COPY . .
-
 RUN mkdir '/app/balena'
 
+#install node dependencies
 RUN npm install balena-sdk
 RUN npm install @abandonware/noble
 RUN npm install node-beacon-scanner
 RUN npm install influxdb-v2
 RUN npm install date-and-time
-
 RUN JOBS=MAX npm install --production --unsafe-perm && npm cache clean --force && rm -rf /tmp/*
 
 COPY . .

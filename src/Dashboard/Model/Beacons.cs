@@ -13,9 +13,9 @@ namespace balenaLocatingDashboard.Model
         public string BeaconId { get; set; }
         public string BeaconName { get; set; }
         public DateTime LastSeen { get; set; }
-        public string Location { get; set; }
+        public string DeviceName { get; set; }
         public double Strength { get; set; }
-        public string DeviceName {get;set;}
+        public string DeviceUuid {get;set;}
     }
     public class BeaconsViewModel
     {
@@ -28,7 +28,7 @@ namespace balenaLocatingDashboard.Model
             var influxKey = Environment.GetEnvironmentVariable("INFLUX_KEY");
             _influxOrg = Environment.GetEnvironmentVariable("INFLUX_ORG");
 
-            _influxDBClient = InfluxDBClientFactory.Create("https://" + influxHost,
+            _influxDBClient = InfluxDBClientFactory.Create(influxHost,
                 influxKey.ToCharArray());
                 _influxDBClient.SetLogLevel(LogLevel.Body);
         }
@@ -84,7 +84,7 @@ namespace balenaLocatingDashboard.Model
 
                         #region deviceName
                         var deviceNameRecord = fluxRecord.GetValueByKey("deviceName");
-                        var deviceName = deviceId;
+                        var deviceName = "unknown";
                         if(null != deviceNameRecord)
                         {
                             deviceName = deviceNameRecord.ToString();
@@ -95,10 +95,10 @@ namespace balenaLocatingDashboard.Model
                         {
                             Strength = (double)fluxRecord.GetValue(),
                             LastSeen = ((Instant)fluxRecord.GetTime()).ToDateTimeUtc(), //Is this the record time, rather than the beacon?!?
-                            DeviceName = deviceId,
+                            DeviceUuid = deviceId,
                             BeaconId = tagId,
                             BeaconName = TagViewModel.GetTagName(tagId),
-                            Location = deviceName
+                            DeviceName = deviceName
                         });
                     }
                  });

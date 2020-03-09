@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="InfluxDB.Client" Version="1.4.0" />
+    <PackageReference Include="MatBlazor" Version="2.2.0" />
     <PackageReference Include="NodaTime" Version="2.4.7" />
   </ItemGroup>
 

@@ -87,7 +87,7 @@ else
                 <th>Last Seen</th>
                 <th>Location</th>
                 <th>Strength</th>
-                <th>Device Name</th>
+                <th>Device UUID</th>
             </tr>
         </thead>
         <tbody>
@@ -95,11 +95,19 @@ else
     {
         if(null == item.BeaconName && !_showUnNamed){continue;}
         <tr bgcolor=@SetRowColour(item.LastSeen)>
-            <td>@(item.BeaconName ?? item.BeaconId)</td>
+            <td>
+                  <MatTooltip Tooltip=@item.BeaconId>
+                    <span @ref="@context.Current" >@(item.BeaconName ?? item.BeaconId)</span>
+                </MatTooltip>
+            </td>
             <td>@item.LastSeen</td>
-            <td>@item.Location</td>
-            <td>@item.Strength</td>
             <td>@item.DeviceName</td>
+            <td>@item.Strength</td>
+            <td>
+                 <MatTooltip Tooltip=@item.DeviceUuid>
+                    <span @ref="@context.Current" >@item.DeviceUuid.Substring(0,7)</span>
+                </MatTooltip>
+            </td>
         </tr>
     }
         </tbody>
