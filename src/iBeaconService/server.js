@@ -15,13 +15,13 @@ let debug = false;
 
 let deviceId = process.env.BALENA_DEVICE_UUID;
 let deviceName = GetDeviceName(deviceId);
-let rssiThreshold = process.env.RSSI_THRESHOLD;
-let separationPeriod = process.env.SEP_PERIOD;
+let rssiThreshold = process.env.RSSI_THRESHOLD || -75;
+let separationPeriod = process.env.SEP_PERIOD || 30;
 let influxHost = process.env.INFLUX_HOST;
 let influxKey = process.env.INFLUX_KEY;
 let influxBucket = process.env.INFLUX_BUCKET;
 let influxOrg = process.env.INFLUX_ORG;
-if (![deviceId, rssiThreshold, separationPeriod, influxHost, influxBucket, influxKey, influxOrg].every(Boolean)) {
+if (![deviceId, influxHost, influxBucket, influxKey, influxOrg].every(Boolean)) {
   throw new exc("Please check that all environment variables are configured. Exiting.");
 }
 
