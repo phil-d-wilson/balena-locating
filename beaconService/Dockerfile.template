@@ -12,7 +12,6 @@ COPY . .
 RUN mkdir '/app/balena'
 
 #install node dependencies
-RUN npm install balena-sdk
 RUN npm install @abandonware/noble
 RUN npm install node-beacon-scanner
 RUN npm install influxdb-v2

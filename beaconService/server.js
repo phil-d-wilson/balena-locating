@@ -2,19 +2,10 @@ const BeaconScanner = require('node-beacon-scanner');
 const scanner = new BeaconScanner();
 const date = require('date-and-time');
 
-//Ready the Balena SDK
-let balena = require('balena-sdk')({
-  apiUrl: "https://api.balena-cloud.com/",
-  dataDirectory: "/app/balena"
-});
-
-let key = process.env.BALENACLOUD_KEY;
-balena.auth.loginWithToken(key);
-
 let debug = false;
 
 let deviceId = process.env.BALENA_DEVICE_UUID;
-let deviceName = GetDeviceName(deviceId);
+let deviceName = process.env.BALENA_DEVICE_NAME_AT_INIT;
 let rssiThreshold = process.env.RSSI_THRESHOLD || -75;
 let separationPeriod = process.env.SEP_PERIOD || 30;
 let influxHost = process.env.INFLUX_HOST;
@@ -143,40 +134,6 @@ scanner.onadvertisement = (ad) => {
 
   lastSentDictionary[tagId] = new Date;
 };
-
-function objToString(obj) {
-  let str = '';
-  for (let p in obj) {
-    if (obj.hasOwnProperty(p)) {
-      str += p + '::' + obj[p] + '\n';
-    }
-  }
-  return str;
-}
-
-function GetDeviceName(deviceId) {
-  balena.models.device.tags.getAllByDevice(deviceId).then(function (tags) {
-    if (null != tags) {
-      tags.forEach(function (tag) {
-        if (tag.tag_key == "Name") {
-          deviceName = tag.value;
-          console.log("Using the 'Name' tag for the device name.")
-          console.log("Device name is " + tag.value);
-          return;
-        }
-      });
-    }
-    else {
-      balena.models.device.getName(deviceId).then(function (name) {
-
-        console.log("No 'Name' tag set for this device so using " + name + " instead");
-        deviceName = name;
-        return;
-      });
-
-    }
-  })
-}
 
 // Start scanning for iBeacons
 scanner.startScan().then(() => {
