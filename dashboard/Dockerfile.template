@@ -1,4 +1,4 @@
-FROM balenalib/intel-nuc-debian-dotnet:3.1-sdk-stretch-build as build
+FROM balenalib/%%BALENA_MACHINE_NAME%%-debian-dotnet:3.1-sdk-stretch-build as build
 WORKDIR /app
 
 #Restore nuget packages
@@ -10,7 +10,7 @@ COPY . ./
 RUN dotnet publish -c Debug -o out
 
 #Use runtime image to keep size dowm
-FROM balenalib/intel-nuc-debian-dotnet:3.1-aspnet-run
+FROM balenalib/%%BALENA_MACHINE_NAME%%-debian-dotnet:3.1-aspnet-run
 WORKDIR /app
 COPY --from=build /app/out .
 ENTRYPOINT  ["dotnet", "balenaLocatingDashboard.dll"]

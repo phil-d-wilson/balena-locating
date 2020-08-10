@@ -55,40 +55,46 @@ scanner.onadvertisement = (ad) => {
 
     //TODO: Remove this when the ghost beacons issue is resolved
     if (ad.iBeacon.minor != 139 && ad.iBeacon.minor != 1218 && ad.iBeacon.minor != 6) {
-      console.log("Ad: " + objToString(ad))
-      console.log("iBeacon: " + objToString(ad.iBeacon))
+      if (debug) {
+        console.log("Ad: " + objToString(ad))
+        console.log("iBeacon: " + objToString(ad.iBeacon))
+      }
     }
 
     tagId = ad.iBeacon.uuid + "-" + ad.iBeacon.major + "-" + ad.iBeacon.minor;
   }
-  else if (ad.beaconType == "eddystoneUid")
-  {
-    console.log("Ad: " + objToString(ad))
-    console.log("EddystoneUid: " + objToString(ad.eddystoneUid))
+  else if (ad.beaconType == "eddystoneUid") {
+    if (debug) {
+      console.log("Ad: " + objToString(ad))
+      console.log("EddystoneUid: " + objToString(ad.eddystoneUid))
+    }
     tagId = ad.eddystoneUid.namespace + "-" + ad.eddystoneUid.instance;
   }
-  else if (ad.beaconType == "eddystoneTlm")
-  {
-    console.log("Ad: " + objToString(ad))
-    console.log("eddystoneTlm: " + objToString(ad.eddystoneTlm))
-    console.log("Eddystone TLM beacons are not supported. Ignoring")
+  else if (ad.beaconType == "eddystoneTlm") {
+    if (debug) {
+      console.log("Ad: " + objToString(ad))
+      console.log("eddystoneTlm: " + objToString(ad.eddystoneTlm))
+      console.log("Eddystone TLM beacons are not supported. Ignoring")
+    }
     return;
   }
-  else if (ad.beaconType == "eddystoneUrl")
-  {
-    console.log("Ad: " + objToString(ad))
-    console.log("eddystoneUrl: " + objToString(ad.eddystoneUrl))
-    console.log("Eddystone URL beacons are not supported. Ignoring")
+  else if (ad.beaconType == "eddystoneUrl") {
+    if (debug) {
+      console.log("Ad: " + objToString(ad))
+      console.log("eddystoneUrl: " + objToString(ad.eddystoneUrl))
+      console.log("Eddystone URL beacons are not supported. Ignoring")
+    }
     return;
   }
-  else
-  {
-    console.log("Other type of advertisement packet recieved. Currently not supported. Ignoring:")
-    console.log(objToString(ad))
+  else {
+    if (debug) {
+      console.log("Other type of advertisement packet recieved. Currently not supported. Ignoring:")
+      console.log(objToString(ad))
+    }
     return;
   }
 
-  
+
 
   if (null != rssiThreshold && ad.rssi < rssiThreshold) {
     if (debug) { console.log("Beacon for tag: " + tagId + " ignored because the RSSI was below the set threshold: " + rssiThreshold) }
@@ -134,6 +140,16 @@ scanner.onadvertisement = (ad) => {
 
   lastSentDictionary[tagId] = new Date;
 };
+
+function objToString(obj) {
+  let str = '';
+  for (let p in obj) {
+    if (obj.hasOwnProperty(p)) {
+      str += p + '::' + obj[p] + '\n';
+    }
+  }
+  return str;
+}
 
 // Start scanning for iBeacons
 scanner.startScan().then(() => {
