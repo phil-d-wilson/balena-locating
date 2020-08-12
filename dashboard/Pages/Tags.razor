@@ -6,7 +6,7 @@
 Here are the tags and their given names:
 
 @code {
-    private List<Tag> _namedTags = TagViewModel.GetTagNames();
+    private List<Tag> _namedTags = new TagViewModel().GetTagNames();
 }
 
 @if (_namedTags == null)

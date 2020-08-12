@@ -27,6 +27,10 @@ namespace balenaLocatingDashboard
                     Console.WriteLine("Dashboard configured to not run, with env-var RUN_DASHBOARD set to: " + run);
                 }
             }
+            else
+            {
+                Console.WriteLine("Dashboard configured to not run. Add an environment variabled RUN_DASHBOARD set to: true");
+            }
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

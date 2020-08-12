@@ -22,11 +22,21 @@ namespace balenaLocatingDashboard.Model
         private InfluxDBClient _influxDBClient;
         private readonly string _influxOrg;
 
+        private readonly TagViewModel _tagViewModel;
+
         public BeaconsViewModel()
         {
+            _tagViewModel = new TagViewModel();
             var influxHost = Environment.GetEnvironmentVariable("INFLUX_HOST");
             var influxKey = Environment.GetEnvironmentVariable("INFLUX_KEY");
             _influxOrg = Environment.GetEnvironmentVariable("INFLUX_ORG");
+
+            if(null == influxHost || null == influxKey || null == _influxOrg )
+            {
+                Console.WriteLine("The necessary InfluxDB details have not been set in environment variables.");
+                Console.WriteLine("Please see the project documentation for details: https://github.com/balenalabs-incubator/balenaLocating");
+                return;
+            }
 
             _influxDBClient = InfluxDBClientFactory.Create(influxHost,
                 influxKey.ToCharArray());
@@ -97,7 +107,7 @@ namespace balenaLocatingDashboard.Model
                             LastSeen = ((Instant)fluxRecord.GetTime()).ToDateTimeUtc(), //Is this the record time, rather than the beacon?!?
                             DeviceUuid = deviceId,
                             BeaconId = tagId,
-                            BeaconName = TagViewModel.GetTagName(tagId),
+                            BeaconName = _tagViewModel.GetTagName(tagId),
                             DeviceName = deviceName
                         });
                     }
