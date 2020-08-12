@@ -26,15 +26,15 @@ Here's a list of the iBeacons I've found:<hr>
         _latestBeacons = await _viewModel.GetLatest();
     }
 
-     private void ToggleShowUnNamed()
+    private void ToggleShowUnNamed()
     {
         _showUnNamed = !_showUnNamed;
-       SetButtonLabel();
+        SetButtonLabel();
     }
 
     private void SetButtonLabel()
     {
-         if(_showUnNamed)
+        if (_showUnNamed)
         {
             _buttonLabel = "Hide";
         }
@@ -46,7 +46,7 @@ Here's a list of the iBeacons I've found:<hr>
 
     private string SetRowColour(DateTime lastSeen)
     {
-        if(lastSeen.AddMinutes(10) <= DateTime.Now)
+        if (lastSeen.AddMinutes(10) <= DateTime.Now)
         {
             return "lightpink";
         }
@@ -54,13 +54,13 @@ Here's a list of the iBeacons I've found:<hr>
         return "azure";
     }
 
-     private int _count { get; set; } = 30;
+    private int _count { get; set; } = 30;
 
     private async Task StartCountdown()
     {
         var timer = new Timer(new TimerCallback(async (_) =>
         {
-            if (_count <= 0) 
+            if (_count <= 0)
             {
                 await GetLatestBeacons();
                 _count = 30;
@@ -71,7 +71,7 @@ Here's a list of the iBeacons I've found:<hr>
             await base.InvokeAsync(StateHasChanged);
         }), null, 1000, 1000);
     }
-        
+
 }
 
 @if (_latestBeacons == null)
@@ -83,32 +83,30 @@ else
     <table class="table">
         <thead>
             <tr>
-                <th>Tag Name</th>
+                <th>Tag (ID)</th>
                 <th>Last Seen</th>
-                <th>Location</th>
+                <th>Location (UUID)</th>
                 <th>Strength</th>
-                <th>Device UUID</th>
             </tr>
         </thead>
         <tbody>
     @foreach (var item in _latestBeacons)
     {
         if(null == item.BeaconName && !_showUnNamed){continue;}
-        <tr bgcolor=@SetRowColour(item.LastSeen)>
-            <td>
-                  <MatTooltip Tooltip=@item.BeaconId>
-                    <span @ref="@context.Current" >@(item.BeaconName ?? item.BeaconId)</span>
-                </MatTooltip>
-            </td>
-            <td>@item.LastSeen</td>
-            <td>@item.DeviceName</td>
-            <td>@item.Strength</td>
-            <td>
-                 <MatTooltip Tooltip=@item.DeviceUuid>
-                    <span @ref="@context.Current" >@item.DeviceUuid.Substring(0,7)</span>
-                </MatTooltip>
-            </td>
-        </tr>
+            <tr bgcolor=@SetRowColour(item.LastSeen)>
+                <td>
+                    <MatTooltip Tooltip=@item.BeaconId>
+                        <span @ref="@context.Current" >@(item.BeaconName ?? item.BeaconId)</span>
+                    </MatTooltip>
+                </td>
+                <td>@item.LastSeen</td>
+                <td>
+                    <MatTooltip Tooltip=@item.DeviceUuid>
+                        <span @ref="@context.Current" >@item.DeviceName</span>
+                    </MatTooltip>
+                    </td>
+                <td>@item.Strength</td>
+            </tr>
     }
         </tbody>
     </table>

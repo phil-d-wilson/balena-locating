@@ -1,41 +1,40 @@
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Collections.Generic;
 
 namespace balenaLocatingDashboard.Model
 {
-    public static class TagViewModel
+    public class TagViewModel
     {
-        public static List<Tag> GetTagNames()
+        List<Tag> _tagNames;
+
+        public TagViewModel()
+        {
+            _tagNames = GetTagNames();
+        }
+
+        public List<Tag> GetTagNames()
         {
             List<Tag> output = new List<Tag>();
-            var tagNames = Environment.GetEnvironmentVariable("TAG_NAMES");
-            if(tagNames != null)
+            var enVariables = Environment.GetEnvironmentVariables();
+            foreach(System.Collections.DictionaryEntry enVar in enVariables)
             {
-                var mappings = tagNames.Split(',');
-                foreach(var mapping in mappings)
+                if (enVar.Key.ToString().StartsWith("TAG_"))
                 {
-                    var parts = mapping.Split(':');
                     output.Add(new Tag
                     {
-                        Id = parts[0],
-                        Name = parts[1]
+                        Id = enVar.Value.ToString(),
+                        Name = enVar.Key.ToString().Replace("TAG_","")
                     });
                 }
-            }
-            else
-            {
-                Debug.WriteLine("Environment Variable was null");
             }
 
             return output;
         }
 
-        public static string GetTagName(string tagId)
+        public string GetTagName(string tagId)
         {
-            var tagNames = GetTagNames();
-            var mapping = (tagNames.Where(d => d.Id == tagId).FirstOrDefault());
+            var mapping = (_tagNames.Where(d => d.Id == tagId).FirstOrDefault());
 
             if(null == mapping)
             {
@@ -48,7 +47,7 @@ namespace balenaLocatingDashboard.Model
 
     public class Tag
     {
-          public string Id {get; set;}
+        public string Id {get; set;}
         public string Name {get; set;}
         public DateTime LastSeen {get;set;}
         public string Location {get;set;}
