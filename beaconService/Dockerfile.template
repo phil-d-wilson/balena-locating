@@ -1,15 +1,11 @@
-FROM balenalib/%%BALENA_MACHINE_NAME%%-node:12-latest-build 
+FROM balenalib/%%BALENA_MACHINE_NAME%%-node:12-latest-build as build
 
 WORKDIR /app
 
 #install some dependencies for noble and balena-sdk
 RUN install_packages make g++ bluetooth bluez libbluetooth-dev libudev-dev git
 
-#Set permissions to allow BLE scanning
-RUN sudo setcap cap_net_raw+eip $(eval readlink -f `which node`)
-
 COPY . .
-RUN mkdir '/app/balena'
 
 #install node dependencies
 RUN npm install @abandonware/noble
@@ -18,6 +14,12 @@ RUN npm install influxdb-v2
 RUN npm install date-and-time
 RUN JOBS=MAX npm install --production --unsafe-perm && npm cache clean --force && rm -rf /tmp/*
 
-COPY . .
+FROM balenalib/%%BALENA_MACHINE_NAME%%-node:12-latest-run
+
+#Set permissions to allow BLE scanning
+RUN sudo setcap cap_net_raw+eip $(eval readlink -f `which node`)
+
+WORKDIR /app
+COPY --from=build /app /app
 
 CMD ["npm", "start"]

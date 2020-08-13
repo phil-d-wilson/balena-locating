@@ -56,6 +56,8 @@ Here's a list of the iBeacons I've found:<hr>
 
     private int _count { get; set; } = 30;
 
+    #pragma warning disable 1998
+    #pragma warning disable 4014
     private async Task StartCountdown()
     {
         var timer = new Timer(new TimerCallback(async (_) =>

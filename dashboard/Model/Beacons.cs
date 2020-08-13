@@ -22,6 +22,8 @@ namespace balenaLocatingDashboard.Model
         private InfluxDBClient _influxDBClient;
         private readonly string _influxOrg;
 
+        private readonly string _influxBucket;
+
         private readonly TagViewModel _tagViewModel;
 
         public BeaconsViewModel()
@@ -30,32 +32,42 @@ namespace balenaLocatingDashboard.Model
             var influxHost = Environment.GetEnvironmentVariable("INFLUX_HOST");
             var influxKey = Environment.GetEnvironmentVariable("INFLUX_KEY");
             _influxOrg = Environment.GetEnvironmentVariable("INFLUX_ORG");
+            _influxBucket = Environment.GetEnvironmentVariable("INFLUX_BUCKET");
 
-            if(null == influxHost || null == influxKey || null == _influxOrg )
+            if(null == influxHost || null == influxKey || null == _influxOrg || null == _influxBucket )
             {
                 Console.WriteLine("The necessary InfluxDB details have not been set in environment variables.");
                 Console.WriteLine("Please see the project documentation for details: https://github.com/balenalabs-incubator/balenaLocating");
                 return;
             }
 
+            try
+            {
             _influxDBClient = InfluxDBClientFactory.Create(influxHost,
                 influxKey.ToCharArray());
                 _influxDBClient.SetLogLevel(LogLevel.Body);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Influx exception: " + ex);
+                return;
+            }
         }
 
         public async Task<IList<Beacon>> GetLatest()
         {
             var output = new List<Beacon>();
-            var flux = "from(bucket:\"balenaLocating\")"
+            var flux = "from(bucket:\""+ _influxBucket +"\")"
             +" |> range(start: -48h)  "
             +" |> group(columns: [\"tagId\"])"
             +"|> sort(columns: [\"_time\"], desc: true)"
             +"|> first()  "
             +"|> yield(name: \"first\")";
-            var queryApi = _influxDBClient.GetQueryApi();
+            
             List<InfluxDB.Client.Core.Flux.Domain.FluxTable> tables;
             try
             {
+                var queryApi = _influxDBClient.GetQueryApi();
                 tables = await queryApi.QueryAsync(flux, _influxOrg);
             }
             catch(Exception ex)
@@ -104,7 +116,7 @@ namespace balenaLocatingDashboard.Model
                         output.Add(new Beacon
                         {
                             Strength = (double)fluxRecord.GetValue(),
-                            LastSeen = ((Instant)fluxRecord.GetTime()).ToDateTimeUtc(), //Is this the record time, rather than the beacon?!?
+                            LastSeen = ((Instant)fluxRecord.GetTime()).ToDateTimeUtc(), 
                             DeviceUuid = deviceId,
                             BeaconId = tagId,
                             BeaconName = _tagViewModel.GetTagName(tagId),
