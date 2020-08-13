@@ -22,7 +22,7 @@ if (debugSetting.toLowerCase() == "true") {
   debug = true;
 }
 
-influxHost = influxHost.replace("https://", "");
+influxHost = influxHost.replace("https://", "").replace(/\/$/, "");
 
 //Set the separation period
 separationPeriod = separationPeriod * 1000;
