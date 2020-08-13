@@ -1,17 +1,10 @@
 version: '2.1'
-volumes:
-    resin-data: {}
 services:
     beaconService:
         build: beaconService
-        ports:
-            - 80:8123
         privileged: true
-        tty: true
         restart: always
         network_mode: host
-        volumes:
-            - 'resin-data:/data'
     dashboard:
         build: dashboard
         ports: 
