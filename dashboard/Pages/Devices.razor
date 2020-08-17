@@ -1,0 +1,134 @@
+﻿@page "/Devices"
+@using balenaLocatingDashboard.Model
+@using System.Threading;
+@using System.Linq;
+
+<h2>Devices</h2>
+
+@code {
+    private DeviceViewModel _viewModel = new DeviceViewModel();
+    private Dictionary<string, List<Beacon>> _latestDevices;
+    protected override async Task OnInitializedAsync()
+    {
+        await GetDevices();
+        await StartCountdown();
+    }
+
+    private async Task GetDevices()
+    {
+        _latestDevices = await _viewModel.GetData();
+    }
+
+    private string SetRowColour(DateTime lastSeen)
+    {
+        if (lastSeen.AddMinutes(10) <= DateTime.Now)
+        {
+            return "lightpink";
+        }
+
+        return "azure";
+    }
+
+    private KeyValuePair<string, string> SetStatus(DateTime lastSeen)
+    {
+         if (lastSeen.AddMinutes(10) <= DateTime.Now)
+        {
+            return new KeyValuePair<string, string>("offline", "red");
+        }
+
+        return new KeyValuePair<string, string>("online", "green");
+    }
+
+    private int _count { get; set; } = 30;
+
+#pragma warning disable 1998
+#pragma warning disable 4014
+    private async Task StartCountdown()
+    {
+        var timer = new Timer(new TimerCallback(async (_) =>
+        {
+            if (_count <= 0)
+            {
+                await GetDevices();
+                _count = 30;
+                return;
+            }
+            _count--;
+
+            await base.InvokeAsync(StateHasChanged);
+        }), null, 1000, 1000);
+    }
+
+}
+
+@if (_latestDevices == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <style>
+            .demo-mat-card {
+                max-width: 800px;
+                border: 1px solid black;
+                background-color: #f0f0f5;
+                position: relative;
+                left: 0px;
+            }
+ 
+            .demo-mat-card-content {
+                float: left;
+                padding: 1rem;
+                left: 0px;
+
+            }
+ 
+            .demo-mat-card-clean-margin {
+                margin: 0px;
+            }
+        </style>
+
+        @foreach (var device in _latestDevices)
+        {
+            <MatCard class="demo-mat-card">
+                <MatCardContent class="demo-mat-card-content">
+                    <div class="mat-layout-grid">
+                        <div class="mat-layout-grid-inner">
+                            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12"><MatHeadline6>@device.Value.First().DeviceName</MatHeadline6></div>
+                            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4"><b>Status:</b> <font color=@SetStatus( @device.Value.Max(t => t.LastSeen)).Value> @SetStatus( @device.Value.Max(t => t.LastSeen)).Key</font></div>
+                            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-8"><b>Last Seen:</b> @device.Value.Max(t => t.LastSeen)</div>
+                            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12"><MatCaption>Tags nearby:</MatCaption></div>
+                            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Tag</th>
+                                            <th>Last Seen</th>
+                                            <th>Strength</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var tag in device.Value)
+                                        {
+                                                <tr bgcolor=@SetRowColour(tag.LastSeen)>
+                                                    <td>@tag.BeaconName</td>
+                                                    <td>@tag.LastSeen</td>
+                                                    <td>@tag.Strength</td>
+                                                </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </MatCardContent>
+            </MatCard>
+            <br /><br />
+        }
+
+    <p>Refreshing in @_count seconds</p>
+
+}
+
+
+
