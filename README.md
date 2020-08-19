@@ -1,4 +1,4 @@
-![balenaLocating](https://i.ibb.co/KXZJ8Fy/logo.jpg)
+![balenaLocating](https://i.ibb.co/T8q83bF/balena-Locating.png)
 
 Use Raspberry Pi's and Bluetooth beacons to ensure you never lose your important stuff again. 
 It gives you a web dashboard, viewable from anywhere, that shows you where all your stuff is:
