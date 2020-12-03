@@ -53,14 +53,6 @@ scanner.onadvertisement = (ad) => {
       return;
     }
 
-    //TODO: Remove this when the ghost beacons issue is resolved
-    if (ad.iBeacon.minor != 139 && ad.iBeacon.minor != 1218 && ad.iBeacon.minor != 6) {
-      if (debug) {
-        console.log("Ad: " + objToString(ad))
-        console.log("iBeacon: " + objToString(ad.iBeacon))
-      }
-    }
-
     tagId = ad.iBeacon.uuid + "-" + ad.iBeacon.major + "-" + ad.iBeacon.minor;
   }
   else if (ad.beaconType == "eddystoneUid") {
