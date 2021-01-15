@@ -9,17 +9,17 @@ assets:
     name: "logo"
 data:
   description: "Use Raspberry Pi's and Bluetooth BLE beacons to ensure you never lose your important stuff again."
-applicationEnvironmentVariables:
-    - INFLUX_BUCKET: UPDATE_ME
-    - INFLUX_HOST: UPDATE_ME
-    - INFLUX_KEY: UPDATE_ME
-    - INFLUX_ORG: UPDATE_ME
-    - RUN_DASHBOARD: TRUE
-    - DEBUG: FALSE
-    - RSSI_THRESHOLD: -75
-    - SEP_PERIOD: 30
-defaultDeviceType: "raspberry-pi3"
-supportedDeviceTypes:
-    - "raspberrypi3"
-    - "raspberrypi4-64"
-    - "fincm3"
+  applicationEnvironmentVariables:
+      - INFLUX_BUCKET: UPDATE_ME
+      - INFLUX_HOST: UPDATE_ME
+      - INFLUX_KEY: UPDATE_ME
+      - INFLUX_ORG: UPDATE_ME
+      - RUN_DASHBOARD: TRUE
+      - DEBUG: FALSE
+      - RSSI_THRESHOLD: -75
+      - SEP_PERIOD: 30
+  defaultDeviceType: "raspberry-pi3"
+  supportedDeviceTypes:
+      - "raspberrypi3"
+      - "raspberrypi4-64"
+      - "fincm3"
