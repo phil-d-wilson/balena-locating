@@ -1,3 +1,14 @@
+version: "2"
+slug: "balena-locating"
+name: "balenaLocating"
+type: "sw.application"
+assets:
+  - url: "https://github.com/balenalabs-incubator/balena-locating"
+    name: "repository"
+  - url: "https://raw.githubusercontent.com/balenalabs-incubator/balena-locating/master/logo.png"
+    name: "logo"
+data:
+  description: "Use Raspberry Pi's and Bluetooth BLE beacons to ensure you never lose your important stuff again."
 applicationEnvironmentVariables:
     - INFLUX_BUCKET: UPDATE_ME
     - INFLUX_HOST: UPDATE_ME
@@ -6,4 +17,9 @@ applicationEnvironmentVariables:
     - RUN_DASHBOARD: TRUE
     - DEBUG: FALSE
     - RSSI_THRESHOLD: -75
-    - SEP_PERIOD: 30   
+    - SEP_PERIOD: 30
+defaultDeviceType: "raspberry-pi3"
+supportedDeviceTypes:
+    - "raspberrypi3"
+    - "raspberrypi4-64"
+    - "fincm3"
