@@ -1,14 +1,16 @@
-version: "2"
-slug: "balena-locating"
 name: "balenaLocating"
+description: "Use Raspberry Pi's and Bluetooth BLE beacons to ensure you never lose your important stuff again."
 type: "sw.application"
 assets:
-  - url: "https://github.com/balenalabs-incubator/balena-locating"
-    name: "repository"
-  - url: "https://raw.githubusercontent.com/balenalabs-incubator/balena-locating/master/logo.png"
-    name: "logo"
+  repository:
+    type: "blob.asset"
+    data:
+      url: "https://github.com/balenalabs-incubator/balena-locating"
+  logo:
+    type: "blob.asset"
+    data:
+      url: "https://raw.githubusercontent.com/balenalabs-incubator/balena-locating/master/logo.png"
 data:
-  description: "Use Raspberry Pi's and Bluetooth BLE beacons to ensure you never lose your important stuff again."
   applicationEnvironmentVariables:
       - INFLUX_BUCKET: UPDATE_ME
       - INFLUX_HOST: UPDATE_ME
