@@ -6,7 +6,7 @@ It gives you a web dashboard, viewable from anywhere, that shows you where all y
 ![dashboard](https://i.ibb.co/XYbFgS3/dashboard.jpg)
 
 
-If you want to read the detailed blogpost for this project, follow this [link](www.notreadyyet.com).
+If you want to read the detailed blogpost for this project, follow this [link](https://www.balena.io/blog/tracking-bluetooth-beacons-with-a-raspberry-pi/).
 
 # Contents
 * [Introduction](#introduction)
@@ -55,5 +55,5 @@ The variable `RSSI_THRESHOLD` can be set to a number between `-100` and `0`. The
 Lastly you can set `SEP_PERIOD` to the number of seconds between reporting each tag beacon.
 
 
-Again, if none of this make sense - check out the blog post with the full tutorial
+Again, if none of this make sense - check out [the blog post with the full tutorial](https://www.balena.io/blog/tracking-bluetooth-beacons-with-a-raspberry-pi/)
 
