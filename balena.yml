@@ -1,5 +1,6 @@
 name: "balenaLocating"
 description: "Use Raspberry Pi's and Bluetooth BLE beacons to ensure you never lose your important stuff again."
+joinable: false
 type: "sw.application"
 assets:
   repository:
