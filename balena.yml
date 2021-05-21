@@ -1,31 +1,35 @@
-name: "balenaLocating"
-description: "Use Raspberry Pi's and Bluetooth BLE beacons to ensure you never lose your important stuff again."
+name: balenaLocating
+description: >-
+  Use Raspberry Pi's and Bluetooth BLE beacons to ensure you never lose your
+  important stuff again.
 joinable: false
-type: "sw.application"
+type: sw.application
 assets:
   repository:
-    type: "blob.asset"
+    type: blob.asset
     data:
-      url: "https://github.com/balenalabs-incubator/balena-locating"
+      url: 'https://github.com/balenalabs-incubator/balena-locating'
   logo:
-    type: "blob.asset"
+    type: blob.asset
     data:
-      url: "https://raw.githubusercontent.com/balenalabs-incubator/balena-locating/master/logo.png"
+      url: >-
+        https://raw.githubusercontent.com/balenalabs-incubator/balena-locating/master/logo.png
 data:
   applicationEnvironmentVariables:
-      - INFLUX_BUCKET: UPDATE_ME
-      - INFLUX_HOST: UPDATE_ME
-      - INFLUX_KEY: UPDATE_ME
-      - INFLUX_ORG: UPDATE_ME
-      - RUN_DASHBOARD: TRUE
-      - DEBUG: FALSE
-      - RSSI_THRESHOLD: -75
-      - SEP_PERIOD: 30
-  defaultDeviceType: "raspberry-pi3"
+    - INFLUX_BUCKET: UPDATE_ME
+    - INFLUX_HOST: UPDATE_ME
+    - INFLUX_KEY: UPDATE_ME
+    - INFLUX_ORG: UPDATE_ME
+    - RUN_DASHBOARD: true
+    - DEBUG: false
+    - RSSI_THRESHOLD: -75
+    - SEP_PERIOD: 30
+  defaultDeviceType: raspberry-pi3
   supportedDeviceTypes:
-      - "raspberrypi3"
-      - "raspberrypi4-64"
-      - "fincm3"
-      - "intel-nuc"
-      - "raspberrypi400-64"
-      - "nanopi-neo-air"
+    - raspberrypi3
+    - raspberrypi4-64
+    - fincm3
+    - intel-nuc
+    - raspberrypi400-64
+    - nanopi-neo-air
+version: 0.1.0
