@@ -33,7 +33,7 @@ This project turns devices into Bluetooth Low Energy (BLE) sensors. By naming th
 # Setup the Application
 You can deploy this project to a new balenaCloud application in one click using the button below:
 <br/><br/>
-[![](https://balena.io/deploy.png)](https://dashboard.balena-cloud.com/deploy?repoUrl=https://github.com/balenalabs-incubator/balenaLocating)
+[![](https://balena.io/deploy.png)](https://dashboard.balena-cloud.com/deploy?repoUrl=https://github.com/phil-d-wilson/balenaLocating)
 <br/><br/>Or, you can create an application in your balenaCloud dashboard and balena push this code to it the traditional way.
 
 # Configure
