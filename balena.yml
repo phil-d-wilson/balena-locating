@@ -21,7 +21,7 @@ data:
       - DEBUG: FALSE
       - RSSI_THRESHOLD: -75
       - SEP_PERIOD: 30
-  defaultDeviceType: "raspberry-pi3"
+  defaultDeviceType: "raspberrypi3"
   supportedDeviceTypes:
       - "raspberrypi3"
       - "raspberrypi4-64"
